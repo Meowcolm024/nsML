@@ -60,10 +60,10 @@ funDef = do
     fn     <- identifier
     params <- sepEndBy1 identifier whiteSpace
     reservedOp "="
-    _ <- many alphaNum <* whiteSpace
-    if funName sig /= fn
-        then parserFail "Error: function name mismatch"
-        else pure $ FunDef sig params (Identifier "hello")
+    body <- expr
+    let fm = funName sig in if fm /= fn
+        then parserFail $ "Error: function name mismatch for " ++ fm ++ " and " ++ fn
+        else pure $ FunDef sig params body
 
 varDef :: Parser (VarDef String)
 varDef = do
@@ -75,16 +75,17 @@ varDef = do
     VarDef i ty <$> expr
 
 
-ifElse :: Parser (Expr String, Expr String, Expr String)
+-- | if then else
+ifElse :: Parser (Expr String)
 ifElse = do
     reserved "if"
     p <- expr
     reserved "then"
     x <- expr
     reserved "else"
-    y <- expr
-    pure (p, x, y)
+    IfElse p x <$> expr
 
+-- | let binding
 letIn :: Parser (Expr String)
 letIn = do
     reserved "let"
@@ -94,6 +95,7 @@ letIn = do
     reserved "in"
     Let (i, v) <$> expr
 
+-- | lambda expr
 lambda :: Parser (Expr String)
 lambda = do
     reserved "fun"

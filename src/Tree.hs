@@ -17,8 +17,7 @@ instance Show MLType where
     show (MLFun x y)   = "(" ++ show x ++ ") -> (" ++ show y ++ ")"
 
 
-data ADT = Atom String
-         | Product String [MLType]
+data ADT = Atom String | Product String [MLType]
 
 instance Show ADT where
     show (Atom s     ) = s
@@ -36,6 +35,7 @@ instance Show TypeDef where
         "type " ++ unwords (("'" ++) <$> p) ++ " " ++ n ++ " = " ++ intercalate
             " | "
             (map show c)
+
 
 data FunSig a = FunSig
     { funName :: a
@@ -58,7 +58,6 @@ data VarDef a = VarDef
     deriving Show
 
 class Definition a
-
 instance Definition TypeDef
 instance Definition (FunDef a)
 instance Definition (VarDef a)
@@ -80,10 +79,11 @@ data Expr a = Identifier a
             | Or (Expr a) (Expr a)
             | Equals (Expr a) (Expr a)
             | Concat (Expr a) (Expr a)
+            | Pipe (Expr a) (Expr a)
             -- unary op
             | Not (Expr a)
             | Neg (Expr a)
-            | Call a [Expr a]                       -- ^ fun/constr call
+            | Call a (Expr a)                       -- ^ fun/constr call, curried
             | Let (a, Expr a) (Expr a)              -- ^ let binding
             | IfElse (Expr a) (Expr a) (Expr a)     -- ^ if then else
             | Match (Expr a) [MatchCase a]          -- ^ pattern matching

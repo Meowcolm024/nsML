@@ -7,14 +7,14 @@ import           Text.ParserCombinators.Parsec  ( Parser )
 
 langDef :: P.LanguageDef a
 langDef = P.LanguageDef
-    { P.commentStart    = "{-"
-    , P.commentEnd      = "-}"
-    , P.commentLine     = "--"
+    { P.commentStart    = "(*"
+    , P.commentEnd      = "*)"
+    , P.commentLine     = ";;"      -- change later
     , P.nestedComments  = False
     , P.identStart      = letter
     , P.identLetter     = alphaNum
-    , P.opStart         = oneOf "+-*/=:<>()[];'\"|&!"
-    , P.opLetter        = oneOf "+-*/=:<>()[];'\"|&!"
+    , P.opStart         = oneOf "+-*/=:<>()[]'\"|&!"
+    , P.opLetter        = oneOf "+-*/=:<>()[]'\"|&!"
     , P.reservedNames   = [ "type"
                           , "of"
                           , "let"
@@ -35,7 +35,20 @@ langDef = P.LanguageDef
                           , "error"
                           , "_"
                           ]
-    , P.reservedOpNames = [":", "->", ";", "."]
+    , P.reservedOpNames = [ ":"     -- type
+                          , "->"    -- function arroe
+                          , "."     -- ?
+                          , "++"    -- string concat
+                          , "|>"    -- pipe
+                          , "||"    -- or
+                          , "&&"    -- and
+                          , "+"     -- add
+                          , "-"     -- minus / neg
+                          , "*"     -- mult
+                          , "/"     -- div
+                          , "=="    -- equal
+                          , "="     -- binding
+                          ]
     , P.caseSensitive   = True
     }
 
