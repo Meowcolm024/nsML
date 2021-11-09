@@ -70,7 +70,7 @@ instance Show a => Show (FunSig a) where
 -- | Expressions
 data Expr a
     = Identifier a
-    | LitInt Int
+    | LitInt Integer
     | LitBool Bool
     | LitString String
     | LitUnit
@@ -88,7 +88,7 @@ data Expr a
     | Not (Expr a)
     | Neg (Expr a)
     | -- | fun/constr call, curried
-        Call a (Expr a)
+        Call (Expr a) (Expr a)
     | -- | let binding
         Let (a, Expr a) (Expr a)
     | -- | if then else

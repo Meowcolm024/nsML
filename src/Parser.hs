@@ -5,6 +5,7 @@ import           Lexer
 import           Text.Parsec
 import           Text.ParserCombinators.Parsec (Parser)
 import           Tree
+import Text.Parsec.Token (natural)
 
 regularParse :: Parser a -> String -> Either ParseError a
 regularParse p = parse p "nsML"
@@ -107,14 +108,48 @@ lambda = do
   reserved "->"
   Lambda i <$> expr
 
+-- | function application
+funApp :: Parser (Expr String)
+funApp = chainl1 expr' (whiteSpace $> Call)
+  where
+    expr' = Identifier <$> identifier <|> parens funApp
+
+-- | pattern matching
+matches :: Parser (Expr String)
+matches = do
+    reserved "match"
+    e <- expr
+    reserved "with"
+    reservedOp "|"
+    Match e <$> patterns
+
+patterns :: Parser [MatchCase String]
+patterns = sepBy1 patCase (reservedOp "|")
+  where
+    patCase = do
+      pat <- singlePattern
+      reservedOp "->"
+      MatchCase pat <$> expr
+
+singlePattern :: Parser (Pattern String)
+singlePattern = wildcardPattern <|> literalPattern <|> idPattern <|> parens customPattern
+  where
+    wildcardPattern = reserved "_" $> WildcardPattern 
+    literalPattern =  LiteralPattern <$> literals
+    idPattern = IdPattern <$> identifier 
+    customPattern = CustomPattern <$> identifier <*> many singlePattern
+
+-- | literals
+literals :: Parser (Expr a)
+literals = primitiveValues
+
 -- | error type
 bottom :: Parser (Expr String)
 bottom = Bottom <$> (reserved "error" *> expr)
 
 test1 = regularParse sigDef "val map : ('a -> 'b) -> 'a list -> 'b list"
-
 test2 = regularParse typeDef "type 'a list = nil | cons of 'a * 'a list"
-
 test3 = regularParse funDef "val add1 : 'a -> 'a\nlet add1 x = y"
-
 test4 = regularParse funTypeTerm "('a -> 'b) option -> 'b option"
+test5 = regularParse funApp "map (add one) xs"
+test6 = regularParse matches "match x with | 1 -> haha | (Pair 1 (Some t)) -> hihi | (Some i) -> omg | None -> qaq"

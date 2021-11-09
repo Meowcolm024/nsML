@@ -93,3 +93,7 @@ primitiveValues =
         $>  LitBool False
         <|> reserved "unit"
         $>  LitUnit
+        <|> LitInt
+        <$> P.natural lexer
+        <|> LitString
+        <$> P.stringLiteral lexer
