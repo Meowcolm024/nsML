@@ -12,7 +12,7 @@ langDef :: P.LanguageDef a
 langDef = P.LanguageDef
     { P.commentStart    = "(*"
     , P.commentEnd      = "*)"
-    , P.commentLine     = ";;"      -- change later
+    , P.commentLine     = "//"      -- it is the case in FSharp
     , P.nestedComments  = False
     , P.identStart      = letter
     , P.identLetter     = alphaNum

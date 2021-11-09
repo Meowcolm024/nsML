@@ -5,8 +5,6 @@ import           Lexer
 import           Text.Parsec
 import           Text.ParserCombinators.Parsec (Parser)
 import           Tree
-import Text.Parsec.Token (natural)
-import Text.Parsec.Combinator (chainl1)
 
 regularParse :: Parser a -> String -> Either ParseError a
 regularParse p = parse p "nsML"
