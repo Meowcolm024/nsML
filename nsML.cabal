@@ -25,10 +25,13 @@ source-repository head
 
 library
   exposed-modules:
+      Interpreter
       Lexer
       Lib
+      NameAnalysis
       Parser
       Tree
+      TypeChecker
   other-modules:
       Paths_nsML
   hs-source-dirs:

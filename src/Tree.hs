@@ -83,16 +83,12 @@ data Expr a = Identifier a
             -- unary op
             | Not (Expr a)
             | Neg (Expr a)
-            -- fun/constr call
-            | Call a [Expr a]
-            -- let binding
-            | Let (a, Expr a) (Expr a)
-            -- if then else 
-            | IfElse (Expr a) (Expr a) (Expr a)
-            -- pattern matching
-            | Match (Expr a) [MatchCase a]
-            | Lambda a (Expr a)
-            | Error (Expr a)
+            | Call a [Expr a]                       -- ^ fun/constr call
+            | Let (a, Expr a) (Expr a)              -- ^ let binding
+            | IfElse (Expr a) (Expr a) (Expr a)     -- ^ if then else
+            | Match (Expr a) [MatchCase a]          -- ^ pattern matching
+            | Lambda a (Expr a)                     -- ^ lambda expr
+            | Bottom (Expr a)                       -- ^ error expr
             deriving Show
 
 data MatchCase a = MatchCase (Pattern a) (Expr a)

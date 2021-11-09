@@ -33,6 +33,7 @@ langDef = P.LanguageDef
                           , "string"
                           , "unit"
                           , "error"
+                          , "_"
                           ]
     , P.reservedOpNames = [":", "->", ";", "."]
     , P.caseSensitive   = True

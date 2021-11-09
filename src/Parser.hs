@@ -37,10 +37,10 @@ typeTerm :: Parser MLType
 typeTerm = parens funTypeTerm <|> do
     ps <- many $ string "'" *> identifier
     ty <- optionMaybe (identifier <|> primitiveTypes)
-    pure $ case (ps, ty) of
-        ([v], Nothing) -> Var v
-        (vs , Just t ) -> Custom vs t
-        _              -> error $ show ps ++ "\n" ++ show ty
+    case (ps, ty) of
+        ([v], Nothing) -> pure $ Var v
+        (vs , Just t ) -> pure $ Custom vs t
+        _              -> parserFail $ "Too many type-args " ++ show ps
 
 -- | Parser for types
 funTypeTerm :: Parser MLType
@@ -100,6 +100,10 @@ lambda = do
     i <- identifier
     reserved "->"
     Lambda i <$> expr
+
+-- | error type
+bottom :: Parser (Expr String)
+bottom = Bottom <$> (reserved "error" *> expr)
 
 test = regularParse sigDef "val map : ('a -> 'b) -> 'a list -> 'b list"
 test2 = regularParse typeDef "type 'a list = nil | cons of 'a * 'a list"
