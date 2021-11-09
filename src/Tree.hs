@@ -1,5 +1,3 @@
-{-# LANGUAGE Rank2Types #-}
-
 module Tree where
 
 import           Data.List                      ( intercalate )

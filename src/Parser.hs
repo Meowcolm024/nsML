@@ -6,11 +6,12 @@ import           Text.Parsec
 import           Text.ParserCombinators.Parsec (Parser)
 import           Tree
 import Text.Parsec.Token (natural)
+import Text.Parsec.Combinator (chainl1)
 
 regularParse :: Parser a -> String -> Either ParseError a
 regularParse p = parse p "nsML"
 
--- | parser for ADT
+-- | type definition
 typeDef :: Parser (Definition a)
 typeDef = do
   reserved "type"
@@ -42,10 +43,11 @@ typeTerm = do
     ([], Just pm)      -> pure pm
     _                  -> parserFail "Error: Fail to parse type"
 
--- | Parser for types
+-- | a single type term
 funTypeTerm :: Parser MLType
 funTypeTerm = chainr1 typeTerm (reservedOp "->" $> MLFun)
 
+-- | function signaturee
 sigDef :: Parser (FunSig String)
 sigDef = do
   reserved "val"
@@ -53,6 +55,7 @@ sigDef = do
   reservedOp ":"
   FunSig i <$> funTypeTerm
 
+-- | function definition
 funDef :: Parser (Definition String)
 funDef = do
   sig <- sigDef
@@ -67,6 +70,7 @@ funDef = do
          $ "Error: function name mismatch for " ++ fm ++ " and " ++ fn
        else pure $ FunDef sig params body
 
+-- | variable definition
 varDef :: Parser (Definition String)
 varDef = do
   reserved "let"
@@ -75,6 +79,7 @@ varDef = do
   ty <- funTypeTerm
   reservedOp "="
   VarDef i ty <$> expr
+
 
 -- | if then else
 ifElse :: Parser (Expr String)
@@ -129,7 +134,7 @@ singlePattern :: Parser (Pattern String)
 singlePattern = wildcardPattern <|> literalPattern <|> idPattern <|> parens customPattern
   where
     wildcardPattern = reserved "_" $> WildcardPattern 
-    literalPattern =  LiteralPattern <$> (literals <|> uOps literals)
+    literalPattern =  LiteralPattern <$> literals
     idPattern = IdPattern <$> identifier 
     customPattern = CustomPattern <$> identifier <*> many singlePattern
 
@@ -145,13 +150,21 @@ bottom = Bottom <$> (reserved "error" *> expr)
 variable :: Parser (Expr String)
 variable = Identifier <$> identifier
 
+-- | function piping
+pipe :: Parser (Expr String)
+pipe = chainl1 expr' (reservedOp "|>" $> Pipe)
+
 -- | unary operator
 uOps :: Parser (Expr String) -> Parser (Expr String)
 uOps term = Not <$> (reservedOp "!" *> term) <|> Neg <$> (reservedOp "-" *> term)
 
 -- | expr
 expr :: Parser (Expr String)
-expr = letIn <|> ifElse <|> matches <|> lambda <|> term0
+expr = pipe
+
+-- | simpler expr
+expr' :: Parser (Expr String)
+expr' = letIn <|> ifElse <|> matches <|> lambda <|> term0
 
 -- | binary operators
 term0 = term1 `chainl1` (reservedOp "||" $> Or)

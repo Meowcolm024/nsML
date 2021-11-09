@@ -1,3 +1,3 @@
 # nsML
 
-nsML = Non-standard ML :P
+nsML = Non-Standard ML :P
