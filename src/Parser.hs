@@ -10,10 +10,6 @@ import Text.Parsec.Token (natural)
 regularParse :: Parser a -> String -> Either ParseError a
 regularParse p = parse p "nsML"
 
--- dummy expr parser
-expr :: Parser (Expr String)
-expr = Identifier <$> many alphaNum <* whiteSpace
-
 -- | parser for ADT
 typeDef :: Parser (Definition a)
 typeDef = do
@@ -110,9 +106,7 @@ lambda = do
 
 -- | function application
 funApp :: Parser (Expr String)
-funApp = chainl1 expr' (whiteSpace $> Call)
-  where
-    expr' = Identifier <$> identifier <|> parens funApp
+funApp = chainl1 (parens expr <|> literals <|> variable) (whiteSpace $> Call)
 
 -- | pattern matching
 matches :: Parser (Expr String)
@@ -135,7 +129,7 @@ singlePattern :: Parser (Pattern String)
 singlePattern = wildcardPattern <|> literalPattern <|> idPattern <|> parens customPattern
   where
     wildcardPattern = reserved "_" $> WildcardPattern 
-    literalPattern =  LiteralPattern <$> literals
+    literalPattern =  LiteralPattern <$> (literals <|> uOps literals)
     idPattern = IdPattern <$> identifier 
     customPattern = CustomPattern <$> identifier <*> many singlePattern
 
@@ -147,9 +141,24 @@ literals = primitiveValues
 bottom :: Parser (Expr String)
 bottom = Bottom <$> (reserved "error" *> expr)
 
-test1 = regularParse sigDef "val map : ('a -> 'b) -> 'a list -> 'b list"
-test2 = regularParse typeDef "type 'a list = nil | cons of 'a * 'a list"
-test3 = regularParse funDef "val add1 : 'a -> 'a\nlet add1 x = y"
-test4 = regularParse funTypeTerm "('a -> 'b) option -> 'b option"
-test5 = regularParse funApp "map (add one) xs"
-test6 = regularParse matches "match x with | 1 -> haha | (Pair 1 (Some t)) -> hihi | (Some i) -> omg | None -> qaq"
+-- | variable
+variable :: Parser (Expr String)
+variable = Identifier <$> identifier
+
+-- | unary operator
+uOps :: Parser (Expr String) -> Parser (Expr String)
+uOps term = Not <$> (reservedOp "!" *> term) <|> Neg <$> (reservedOp "-" *> term)
+
+-- | expr
+expr :: Parser (Expr String)
+expr = letIn <|> ifElse <|> matches <|> lambda <|> term0
+
+-- | binary operators
+term0 = term1 `chainl1` (reservedOp "||" $> Or)
+term1 = term2 `chainl1` (reservedOp "&&" $> And)
+term2 = term3 `chainl1` (reservedOp "==" $> Equals)
+term3 = term4 `chainl1` (reservedOp "<" $> LessThan <|> reservedOp "<=" $> LessEqual)
+term4 = term5 `chainl1` (reservedOp "+" $> Plus <|> reservedOp "-" $> Minus <|> reservedOp "++" $> Concat)
+term5 = term6 `chainl1` (reservedOp "*" $> Mult <|> reservedOp "/" $> Div)
+term6 = uOps term7 <|> term7
+term7 = parens expr <|> literals <|> funApp <|> bottom

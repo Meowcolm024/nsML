@@ -16,8 +16,8 @@ langDef = P.LanguageDef
     , P.nestedComments  = False
     , P.identStart      = letter
     , P.identLetter     = alphaNum
-    , P.opStart         = oneOf "+-*/=:<>()[]'\"|&!"
-    , P.opLetter        = oneOf "+-*/=:<>()[]'\"|&!"
+    , P.opStart         = oneOf "+-*/=:<>'\"|&!"
+    , P.opLetter        = oneOf "+-*/=:<>'\"|&!"
     , P.reservedNames   = [ "type"
                           , "of"
                           , "let"
