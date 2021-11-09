@@ -4,6 +4,9 @@ import           Data.Functor                   ( ($>) )
 import           Text.Parsec
 import qualified Text.Parsec.Token             as P
 import           Text.ParserCombinators.Parsec  ( Parser )
+import           Tree                           ( Expr(..)
+                                                , MLType(..)
+                                                )
 
 langDef :: P.LanguageDef a
 langDef = P.LanguageDef
@@ -34,6 +37,7 @@ langDef = P.LanguageDef
                           , "unit"
                           , "error"
                           , "_"
+                          , "main"  -- the main function
                           ]
     , P.reservedOpNames = [ ":"     -- type
                           , "->"    -- function arroe
@@ -69,10 +73,23 @@ reservedOp = P.reservedOp lexer
 whiteSpace :: Parser ()
 whiteSpace = P.whiteSpace lexer
 
-primitiveTypes :: Parser String
+primitiveTypes :: Parser MLType
 primitiveTypes =
-    choice $ map (\x -> reserved x $> x) ["int", "string", "bool", "unit"]
+    reserved "int"
+        $>  MLInt
+        <|> reserved "bool"
+        $>  MLBool
+        <|> reserved "string"
+        $>  MLString
+        <|> reserved "unit"
+        $>  MLUnit
 
-primitiveValues :: Parser String
+
+primitiveValues :: Parser (Expr a)
 primitiveValues =
-    choice $ map (\x -> reserved x $> x) ["true", "false", "unit"]
+    reserved "true"
+        $>  LitBool True
+        <|> reserved "false"
+        $>  LitBool False
+        <|> reserved "unit"
+        $>  LitUnit
