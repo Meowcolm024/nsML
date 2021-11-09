@@ -37,6 +37,32 @@ instance Show TypeDef where
             " | "
             (map show c)
 
+data FunSig a = FunSig
+    { funName :: a
+    , funType :: MLType
+    }
+    deriving Show
+
+data FunDef a = FunDef
+    { funSig    :: FunSig a
+    , funParams :: [a]
+    , funBody   :: Expr a
+    }
+    deriving Show
+
+data VarDef a = VarDef
+    { varName :: a
+    , varType :: MLType
+    , varBody :: Expr a
+    }
+    deriving Show
+
+class Definition a
+
+instance Definition TypeDef
+instance Definition (FunDef a)
+instance Definition (VarDef a)
+
 data Expr a = Identifier a
             -- lit
             | LitInt Int
@@ -59,9 +85,13 @@ data Expr a = Identifier a
             | Neg (Expr a)
             -- fun/constr call
             | Call a [Expr a]
+            -- let binding
             | Let (a, Expr a) (Expr a)
+            -- if then else 
             | IfElse (Expr a) (Expr a) (Expr a)
+            -- pattern matching
             | Match (Expr a) [MatchCase a]
+            | Lambda a (Expr a)
             | Error (Expr a)
             deriving Show
 
