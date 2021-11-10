@@ -37,7 +37,6 @@ langDef = P.LanguageDef
                           , "unit"
                           , "error"
                           , "_"
-                          , "main"  -- the main function
                           ]
     , P.reservedOpNames = [ ":"     -- type
                           , "->"    -- function arroe

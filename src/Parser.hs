@@ -9,6 +9,10 @@ import           Tree
 regularParse :: Parser a -> String -> Either ParseError a
 regularParse p = parse p "nsML"
 
+-- | parse the program
+program :: Parser [Definition String]
+program = many $ whiteSpace *> (typeDef <|> funDef <|> varDef)
+
 -- | type definition
 typeDef :: Parser (Definition a)
 typeDef = do

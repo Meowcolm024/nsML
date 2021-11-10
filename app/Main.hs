@@ -1,31 +1,19 @@
 module Main where
 
 import           Control.Applicative            ( (<|>) )
-import           Lexer                          ( whiteSpace )
+import           Control.Monad                  ( unless )
 import           Parser
+import           System.Environment             ( getArgs )
 import           System.IO
-import           Text.Parsec                    ( many )
+
 
 main :: IO ()
 main = do
-    putStrLn ""
-    f1
-    putStrLn ""
-    f2
-  where
-    f1 = do
-        handle   <- openFile "examples/test1.ml" ReadMode
+    args <- getArgs
+    unless (null args) $ do
+        handle   <- openFile ("examples/" ++ head args) ReadMode
         contents <- hGetContents handle
-        print $ regularParse (whiteSpace *> expr) contents
-        hClose handle
-    f2 = do
-        handle   <- openFile "examples/test2.ml" ReadMode
-        contents <- hGetContents handle
-        case
-                regularParse
-                    (many $ whiteSpace *> typeDef <|> funDef <|> varDef)
-                    contents
-            of
-                Left  pe  -> print pe
-                Right des -> mapM_ print des
+        case regularParse program contents of
+            Left  pe  -> print pe
+            Right des -> mapM_ print des
         hClose handle

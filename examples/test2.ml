@@ -7,3 +7,9 @@ let map f xs =
     match xs with
     | (nil) -> nil
     | (cons y ys) -> cons (f y) (map f ys)
+
+// val main : string -> unit
+let main : unit = 
+    print "hello world" |> fun d ->
+    let f = fun x -> x ++ x
+    in f "bye" |> print

@@ -1,3 +1,4 @@
+{-# LANGUAGE DeriveFunctor #-}
 module Tree where
 
 import           Data.List                      ( intercalate )
@@ -54,8 +55,10 @@ instance Show a => Show (Definition a) where
         "type " ++ unwords (("'" ++) <$> p) ++ " " ++ n ++ " = " ++ intercalate
             " | "
             (map show c)
-    show (FunDef s _ _) = show s
-    show (VarDef n t _) = "let " ++ show n ++ " : " ++ show t
+    show (FunDef s _ b) =
+        show s ++ "\nlet " ++ show (funName s) ++ " =\n" ++ show b
+    show (VarDef n t b) =
+        "let " ++ show n ++ " : " ++ show t ++ " =\n" ++ show b
 
 data FunSig a = FunSig
     { funName :: a
@@ -64,6 +67,7 @@ data FunSig a = FunSig
 
 instance Show a => Show (FunSig a) where
     show (FunSig n t) = "val " ++ show n ++ " : " ++ show t
+
 
 -- | Expressions
 data Expr a
@@ -97,14 +101,14 @@ data Expr a
         Lambda a (Expr a)
     | -- | error expr
         Bottom (Expr a)
-    deriving (Show)
+    deriving (Show, Functor)
 
 data MatchCase a = MatchCase (Pattern a) (Expr a)
-    deriving Show
+    deriving (Show, Functor)
 
 data Pattern a
     = WildcardPattern
     | IdPattern a
     | LiteralPattern (Expr a)
     | CustomPattern a [Pattern a]
-    deriving (Show)
+    deriving (Show, Functor)
