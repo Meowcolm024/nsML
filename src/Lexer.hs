@@ -4,7 +4,7 @@ import           Data.Functor                   ( ($>) )
 import           Text.Parsec
 import qualified Text.Parsec.Token             as P
 import           Text.ParserCombinators.Parsec  ( Parser )
-import           Tree                           ( Expr(..)
+import           Types                          ( Expr(..)
                                                 , MLType(..)
                                                 )
 

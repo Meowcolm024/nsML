@@ -1,10 +1,10 @@
 {-# LANGUAGE DeriveFunctor #-}
-module Tree where
+module Types where
 
 import           Data.List                      ( intercalate )
 
 -- | the program
-newtype Program a = Program {definitions :: [Definition a]} deriving (Show)
+newtype Program a = Program {definitions :: [Definition a]} deriving (Show, Functor)
 
 -- | Types
 data MLType
@@ -35,8 +35,8 @@ instance Show ADT where
 -- | Definitions
 data Definition a
   = TypeDef
-      { typeParams :: [String],
-        typeName :: String,
+      { typeParams :: [a],
+        typeName :: a,
         constructors :: [ADT]
       }
   | FunDef
@@ -49,12 +49,16 @@ data Definition a
         varType :: MLType,
         varBody :: Expr a
       }
+    deriving (Functor)
 
 instance Show a => Show (Definition a) where
     show (TypeDef p n c) =
-        "type " ++ unwords (("'" ++) <$> p) ++ " " ++ n ++ " = " ++ intercalate
-            " | "
-            (map show c)
+        "type "
+            ++ unwords (("'" ++) . show <$> p)
+            ++ " "
+            ++ show n
+            ++ " = "
+            ++ intercalate " | " (map show c)
     show (FunDef s _ b) =
         show s ++ "\nlet " ++ show (funName s) ++ " =\n" ++ show b
     show (VarDef n t b) =
@@ -64,6 +68,7 @@ data FunSig a = FunSig
     { funName :: a
     , funType :: MLType
     }
+    deriving Functor
 
 instance Show a => Show (FunSig a) where
     show (FunSig n t) = "val " ++ show n ++ " : " ++ show t
@@ -112,3 +117,10 @@ data Pattern a
     | LiteralPattern (Expr a)
     | CustomPattern a [Pattern a]
     deriving (Show, Functor)
+
+-- | identifier after name analysis
+data Idx = Idx
+    { idName :: String      -- ^ string of the original name
+    , idx    :: Int         -- ^ unique id
+    }
+    deriving Show

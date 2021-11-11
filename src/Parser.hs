@@ -4,7 +4,7 @@ import           Data.Functor                  (($>))
 import           Lexer
 import           Text.Parsec
 import           Text.ParserCombinators.Parsec (Parser)
-import           Tree
+import           Types
 
 regularParse :: Parser a -> String -> Either ParseError a
 regularParse p = parse p "nsML"
@@ -13,8 +13,10 @@ regularParse p = parse p "nsML"
 program :: Parser [Definition String]
 program = many $ whiteSpace *> (typeDef <|> funDef <|> varDef)
 
+-- * definitions
+
 -- | type definition
-typeDef :: Parser (Definition a)
+typeDef :: Parser (Definition String)
 typeDef = do
   reserved "type"
   ps <- many $ string "'" *> identifier
@@ -82,6 +84,7 @@ varDef = do
   reservedOp "="
   VarDef i ty <$> expr
 
+-- * expressions
 
 -- | if then else
 ifElse :: Parser (Expr String)

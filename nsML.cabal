@@ -30,14 +30,18 @@ library
       Lib
       NameAnalysis
       Parser
-      Tree
+      SymbolTable
       TypeChecker
+      Types
   other-modules:
       Paths_nsML
   hs-source-dirs:
       src
   build-depends:
       base >=4.7 && <5
+    , containers >=0.6.5 && <0.7
+    , lens ==5.*
+    , microlens >=0.4.12 && <0.5
     , parsec >=3.1 && <4
   default-language: Haskell2010
 
@@ -50,6 +54,9 @@ executable nsML-exe
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       base >=4.7 && <5
+    , containers >=0.6.5 && <0.7
+    , lens ==5.*
+    , microlens >=0.4.12 && <0.5
     , nsML
     , parsec >=3.1 && <4
   default-language: Haskell2010
@@ -64,6 +71,9 @@ test-suite nsML-test
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       base >=4.7 && <5
+    , containers >=0.6.5 && <0.7
+    , lens ==5.*
+    , microlens >=0.4.12 && <0.5
     , nsML
     , parsec >=3.1 && <4
   default-language: Haskell2010
